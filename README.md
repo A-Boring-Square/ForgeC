@@ -9,7 +9,7 @@ ForgeC is a lightweight, cross-platform C/C++ build system designed to simplify 
 ### Key Features:
 
 *   Cross-platform: Windows and Unix support
-*   Multiple compiler support: `gcc`, `clang`, `cl`, `cc`, `c++`
+*   Suports any compiler that understands clang/gcc flags
 *   Automatic creation of `Build/` directory
 *   Builds executables, shared libraries, static libraries, and object files
 *   Handles compiler flags, include directories, and source files automatically
