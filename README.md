@@ -28,6 +28,7 @@ Include the `ForgeC` header in your project and call its API functions to config
     int main() {
         build_env_t* env = forgec_init();
         forgec_select_compiler(env, "gcc");
+        forgec_select_linker(env, "ar");
         forgec_add_compiler_arg(env, "-Wall");
         forgec_add_compiler_arg(env, "-std=c11");
         forgec_add_include_dir(env, "include");
@@ -57,7 +58,7 @@ Frees resources associated with the build environment.
 
 `void forgec_select_compiler(build_env_t* env, const char* compiler)`
 
-Selects the compiler (`gcc`, `clang`, `cl`, etc.).
+Selects the compiler (`gcc`, `clang`, etc.).
 
 `void forgec_add_compiler_arg(build_env_t* env, const char* arg)`
 

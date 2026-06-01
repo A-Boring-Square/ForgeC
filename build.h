@@ -40,6 +40,7 @@ typedef enum {
 
 typedef struct {
     const char* compiler;
+    const char* linker;
     const char* compiler_cmd;
     const char* source_dir;
     const char* main_file;
@@ -72,6 +73,10 @@ void forgec_select_compiler(build_env_t* env, const char* compiler) {
     env->compiler = compiler;
 }
 
+void forgec_select_linker(build_env_t* env, const char* linker) {
+    env->linker = linker;
+}
+
 void forgec_add_compiler_arg(build_env_t* env, const char* arg) {
     unsigned int new_size = env->arg_count + 1;
     const char** new_buf = realloc(env->args_buffer, new_size * sizeof(char*));
@@ -80,14 +85,14 @@ void forgec_add_compiler_arg(build_env_t* env, const char* arg) {
         exit(EXIT_FAILURE);
     }
     env->args_buffer = new_buf;
-    env->args_buffer[env->arg_count] = strdup(arg); // deep copy
+    env->args_buffer[env->arg_count] = strdup(arg);
     env->arg_count = new_size;
 }
 
 void forgec_add_include_dir(build_env_t* env, const char* path) {
     char inc_arg[512];
     snprintf(inc_arg, sizeof(inc_arg), "-I%s", path);
-    forgec_add_compiler_arg(env, strdup(inc_arg));
+    forgec_add_compiler_arg(env, inc_arg);
 }
 
 
@@ -110,7 +115,7 @@ void forgec_add_source_files_from_dir(build_env_t* env, const char* dir) {
     do {
         char full_path[512];
         snprintf(full_path, sizeof(full_path), "%s\\%s", dir, data.cFileName);
-        forgec_add_compiler_arg(env, _strdup(full_path));
+        forgec_add_compiler_arg(env, full_path);
     } while (FindNextFile(h, &data));
 
     FindClose(h);
@@ -223,7 +228,7 @@ error_t forgec_build_static(build_env_t* env, const char* output_name) {
         #define FILE_PREFIX "lib"
     #endif
     char archive_cmd[1024];
-    snprintf(archive_cmd, sizeof(archive_cmd), "ar rcs Build%c%s%s%s Build%c*%s", PATH_SEPARATOR, FILE_PREFIX, output_name, STATIC_FILE_EXTENTION, PATH_SEPARATOR, FILE_EXTENTION);
+    snprintf(archive_cmd, sizeof(archive_cmd), "%s rcs Build%c%s%s%s Build%c*%s", env->linker, PATH_SEPARATOR, FILE_PREFIX, output_name, STATIC_FILE_EXTENTION, PATH_SEPARATOR, FILE_EXTENTION);
     printf("Creating static library: %s\n", archive_cmd);
     return system(archive_cmd) == 0 ? NONE : COMPILER_ERROR;
 }
