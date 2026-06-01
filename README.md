@@ -99,7 +99,7 @@ Platform Notes
 --------------
 
 *   Windows paths use `\` and rely on system commands `mkdir` or `if not exist`.
-*   Unix-like systems use `/` and `mkdir` with permissions `0755`.
+*   Unix-like systems use `/`
 *   Compiler commands are automatically constructed and printed for transparency.
 
 License
