@@ -105,4 +105,4 @@ Platform Notes
 License
 -------
 
-This project is open-source. Use and modify freely with attribution.
+This project is licensed under the Apache 2.0 license see [LICENSE] for more information
