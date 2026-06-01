@@ -31,9 +31,9 @@ Include the `ForgeC` header in your project and call its API functions to config
         forgec_add_compiler_arg(env, "-Wall");
         forgec_add_compiler_arg(env, "-std=c11");
         forgec_add_include_dir(env, "include");
-        env->source_dir = "src";
-    
-        forgec_build_executable(env, "MyApp", 1);
+        forgec_add_source_files_from_dir(env, "src")
+        forgec_apply_build_mode(env, 1);
+        forgec_build_executable(env, "MyApp");
     
         forgec_cleanup(env);
         return 0;
@@ -79,19 +79,19 @@ Adds all `.c` files from a source directory to the build.
 
 Adds debug (`-g`, `-O0`) or release (`-O2`) flags.
 
-`error_t forgec_build_executable(build_env_t* env, const char* output_name, int is_debug)`
+`error_t forgec_build_executable(build_env_t* env, const char* output_name)`
 
 Compiles all source files into an executable.
 
-`error_t forgec_build_shared(build_env_t* env, const char* output_name, int is_debug)`
+`error_t forgec_build_shared(build_env_t* env, const char* output_name)`
 
 Builds a shared library (`.dll`/`.so`).
 
-`error_t forgec_build_obj(build_env_t* env, const char* output_name, int is_debug)`
+`error_t forgec_build_obj(build_env_t* env, const char* output_name)`
 
 Builds object files (`.o`/`.obj`).
 
-`error_t forgec_build_static(build_env_t* env, const char* output_name, int is_debug)`
+`error_t forgec_build_static(build_env_t* env, const char* output_name)`
 
 Builds a static library (`.a`/`.lib`).
 

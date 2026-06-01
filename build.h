@@ -150,66 +150,80 @@ void forgec_build_command(build_env_t* env, const char* output_path) {
     env->compiler_cmd = cmd;
 }
 
-error_t forgec_build_executable(build_env_t* env, const char* output_name, int is_debug) {
-    forgec_create_build_dir();
-    forgec_apply_build_mode(env, is_debug);
-    if (env->source_dir) forgec_add_source_files_from_dir(env, env->source_dir);
+error_t forgec_build_executable(build_env_t* env, const char* output_name) {
 
     char out[512];
-    snprintf(out, sizeof(out), "Build%c%s", PATH_SEPARATOR, output_name);
+    #if defined(_WIN32) || defined(_WIN64)
+        #define FILE_EXTENTION ".exe"
+    #else
+        #define FILE_EXTENTION ""
+    #endif
+    snprintf(out, sizeof(out), "Build%c%s%s", PATH_SEPARATOR, output_name, FILE_EXTENTION);
     forgec_build_command(env, out);
 
     printf("Building executable: %s\n", env->compiler_cmd);
     return system(env->compiler_cmd) == 0 ? NONE : COMPILER_ERROR;
 }
 
-error_t forgec_build_shared(build_env_t* env, const char* output_name, int is_debug) {
-    forgec_create_build_dir();
-    forgec_apply_build_mode(env, is_debug);
+error_t forgec_build_shared(build_env_t* env, const char* output_name) {
     forgec_add_compiler_arg(env, "-shared");
-    if (env->source_dir) forgec_add_source_files_from_dir(env, env->source_dir);
 
     char out[512];
-    snprintf(out, sizeof(out), "Build%c%s", PATH_SEPARATOR, output_name);
+    #if defined(_WIN32) || defined(_WIN64)
+        #define FILE_EXTENTION ".dll"
+    #else
+        #define FILE_EXTENTION ".so"
+    #endif
+    snprintf(out, sizeof(out), "Build%c%s%s", PATH_SEPARATOR, output_name, FILE_EXTENTION);
     forgec_build_command(env, out);
 
     printf("Building shared library: %s\n", env->compiler_cmd);
     return system(env->compiler_cmd) == 0 ? NONE : COMPILER_ERROR;
 }
 
-error_t forgec_build_obj(build_env_t* env, const char* output_name, int is_debug) {
-    forgec_create_build_dir();
-    forgec_apply_build_mode(env, is_debug);
+error_t forgec_build_obj(build_env_t* env, const char* output_name) {
     forgec_add_compiler_arg(env, "-c");
-    if (env->source_dir) forgec_add_source_files_from_dir(env, env->source_dir);
 
     char out[512];
-    snprintf(out, sizeof(out), "Build%c%s", PATH_SEPARATOR, output_name);
+    #if defined(_WIN32) || defined(_WIN64)
+        #define FILE_EXTENTION ".obj"
+    #else
+        #define FILE_EXTENTION ".o"
+    #endif
+    snprintf(out, sizeof(out), "Build%c%s%s", PATH_SEPARATOR, output_name, FILE_EXTENTION);
     forgec_build_command(env, out);
 
     printf("Building object file: %s\n", env->compiler_cmd);
     return system(env->compiler_cmd) == 0 ? NONE : COMPILER_ERROR;
 }
 
-error_t forgec_build_static(build_env_t* env, const char* output_name, int is_debug) {
-    forgec_create_build_dir();
-    forgec_apply_build_mode(env, is_debug);
-    if (env->source_dir) forgec_add_source_files_from_dir(env, env->source_dir);
-
-    // Compile to .o files
+error_t forgec_build_static(build_env_t* env, const char* output_name) {
+    #if defined(_WIN32) || defined(_WIN64)
+        #define FILE_EXTENTION ".obj"
+    #else
+        #define FILE_EXTENTION ".o"
+    #endif
+    // Compile to object files
     for (unsigned int i = 0; i < env->arg_count; ++i) {
         const char* src = env->args_buffer[i];
         char obj_out[512];
-        snprintf(obj_out, sizeof(obj_out), "Build%cfile%d.o", PATH_SEPARATOR, i);
+        snprintf(obj_out, sizeof(obj_out), "Build%cfile%d%s", PATH_SEPARATOR, i, FILE_EXTENTION);
         char cmd[1024];
         snprintf(cmd, sizeof(cmd), "%s -c %s -o %s", env->compiler, src, obj_out);
         printf("Compiling: %s\n", cmd);
         if (system(cmd) != 0) return COMPILER_ERROR;
     }
 
-    // Archive .o files
+    // Archive object files files
+    #if defined(_WIN32) || defined(_WIN64)
+        #define STATIC_FILE_EXTENTION ".lib"
+        #define FILE_PREFIX ""
+    #else
+        #define STATIC_FILE_EXTENTION ".a"
+        #define FILE_PREFIX "lib"
+    #endif
     char archive_cmd[1024];
-    snprintf(archive_cmd, sizeof(archive_cmd), "ar rcs Build%c%s Build%c*.o", PATH_SEPARATOR, output_name, PATH_SEPARATOR);
+    snprintf(archive_cmd, sizeof(archive_cmd), "ar rcs Build%c%s%s%s Build%c*%s", PATH_SEPARATOR, FILE_PREFIX, output_name, STATIC_FILE_EXTENTION, PATH_SEPARATOR, FILE_EXTENTION);
     printf("Creating static library: %s\n", archive_cmd);
     return system(archive_cmd) == 0 ? NONE : COMPILER_ERROR;
 }
