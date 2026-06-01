@@ -105,4 +105,4 @@ Platform Notes
 License
 -------
 
-This project is licensed under the Apache 2.0 license see [LICENSE] for more information
+This project is licensed under the Apache 2.0 license see [LICENSE](LICENSE) for more information
