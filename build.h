@@ -195,6 +195,8 @@ error_t forgec_build_shared(build_env_t* env, const char* output_name) {
     char out[512];
     #if defined(_WIN32) || defined(_WIN64)
         #define FILE_EXTENTION ".dll"
+    #elif defined(__APPLE__)
+        #define FILE_EXTENTION "dylib"
     #else
         #define FILE_EXTENTION ".so"
     #endif
